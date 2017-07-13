@@ -1,0 +1,29 @@
+cpt (0.2r3) unstable; urgency=medium
+
+  * quick and dirty fix for permission problem
+
+ -- allaert <allaert@pbuilderbak>  Fri, 24 Feb 2017 15:05:46 +0100
+
+cpt (0.2r2) unstable; urgency=medium
+
+  * Permissions again 
+
+ -- allaert <allaert@pbuilderbak>  Fri, 24 Feb 2017 14:44:00 +0100
+
+cpt (0.2r1) unstable; urgency=medium
+
+  * Fixed icon
+
+ -- allaert <allaert@smoose.nl>  Fri, 24 Feb 2017 14:23:36 +0100
+
+cpt (0.2r0) unstable; urgency=medium
+
+  * Fixed permissions and .desktop file 
+
+ -- allaert <allaert@smoose.nl>  Fri, 24 Feb 2017 13:48:30 +0100
+
+cpt (0.2) unstable; urgency=medium
+
+  * Initial release. (Closes: #000002)
+
+ -- allaert <allaert@smoose.nl>  Fri, 24 Feb 2017 11:52:50 +0100

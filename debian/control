@@ -1,0 +1,15 @@
+Source: cpt
+Standards-Version: 3.9.6
+Section: python
+Maintainer: Smoose - Allaert Euser, <allaert@smoose.nl>
+Build-Depends: debhelper (>= 7),
+ python3 (>= 3.3)
+Priority: optional
+X-Python3-Version: >= 3.3
+
+
+Package: cpt
+Architecture: all
+Depends: python3-gi, android-tools-adb, android-tools-fastboot, gksu, ${misc:Depends}, ${python3:Depends}
+Description: cpt - Flash ubports on your Fairphone 2
+

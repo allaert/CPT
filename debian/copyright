@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cpt
+Upstream-Contact: Smoose B.V., <info@smoose.nl>
+
+Files: *
+Copyright: 2017, Smoose B.V., <info@smoose.nl>
+License: GPL-3+

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=CPT
+Comment=Flash your Fairphone 2 with ubports
+Exec=/opt/cpt/cpt.sh
+Icon=/opt/cpt/cpt.png
+Terminal=false
+Type=Application
+Categories=Utility;
