@@ -1,0 +1,8 @@
+* Get all stable devices from ci.ubports.com  (assumption all stable devices have a stable build)
+* Create a gui stage where you choose the device
+* Output specific instructions for each device that needs it, otherwise use default
+* Rewrite download routines for boot/recovery images and flash
+* Check device connection 
+* Revisit routine that flashes device, make it more robust
+* Clean up code / redudant comments
+

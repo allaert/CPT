@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#    CPT 0.4.2
+#    CPT 0.5.0
 
 #    CPT - provides a gui to flash the ubports project to the Fairphone 2
 #    Copyright (C) 2017  Smoose B.V. - Allaert Euser
