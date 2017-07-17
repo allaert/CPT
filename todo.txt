@@ -8,3 +8,13 @@
 * Stabilize gui (resizing bug)
 * Fix mac graphics bug
 
+
+according to website
+core devices are
+- bacon (oneplus one)
+- FP2 (Fairphone2)
+- hammerhead (Nexus 5)
+
+name, friendly_name, recovery, boot, supported_channels, device_status
+
+
