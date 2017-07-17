@@ -5,4 +5,6 @@
 * Check device connection 
 * Revisit routine that flashes device, make it more robust
 * Clean up code / redudant comments
+* Stabilize gui (resizing bug)
+* Fix mac graphics bug
 

@@ -2,7 +2,8 @@
 
 #    CPT 0.5.0
 
-#    CPT - provides a gui to flash the ubports project to the Fairphone 2
+#    CPT - provides a gui to flash the ubports project to the all stable
+#    devices. It started out as a tool to flash the Fairphone 2
 #    Copyright (C) 2017  Smoose B.V. - Allaert Euser
 #
 #    This program is free software: you can redistribute it and/or modify
