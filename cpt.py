@@ -30,6 +30,7 @@ from gi.repository import Gtk, GObject
 import urllib.request
 import json
 from shutil import rmtree
+from cpt_devices import all_devices
 
 # check if we run in pyinstaller bundle and set currentdir accordingly
 if getattr(sys, 'frozen', False):
@@ -39,13 +40,14 @@ else:
     print('not packaged')
     currentdir = './' + os.path.dirname(__file__)
 # define a stage global to keep track of work
-stage = 0
+stage = -2
 debugging = True
 # quick and dirty define globals for boot and recovery images
-imgsurl = 'http://ci.ubports.com/job/daily-fp2/lastSuccessfulBuild/artifact/device_FP2_devel.tar.xz'
+#imgsurl = 'http://ci.ubports.com/job/daily-fp2/lastSuccessfulBuild/artifact/device_FP2_devel.tar.xz'
 cachedir = os.path.expanduser('~/.cpt/cache/')
 channel = 'stable'
-device = ''
+device_name = ''
+device = -1
 
 GObject.threads_init()
 
@@ -68,8 +70,14 @@ class WorkerThread(threading.Thread):
     def run(self):
         global stage
         global channel
-        if stage == 0:
+        global device
+        if stage == -2:
             self.initcache()
+            stage = -1
+        if stage == -1:
+            if device !=-1:
+                stage = 0
+        if stage == 0:
             if self.fastboot('ping'):
                 print_debug('fastboot returned device setting stage to 1')
                 stage = 1
@@ -93,23 +101,27 @@ class WorkerThread(threading.Thread):
                 if self.adb('adbflash'):
                     print_debug('ubuntu touch flash success')
                     stage = 9
-        # stage 0 - check if device is available in fastboot 
-        # stage 1 - fastboot format and flash boot / recovery 
-        # stage 2 - ready to flash ubuntu
-        # stage 3 - no recovery image detected
-        # stage 9 - end
+        # stage -2 - initcache
+        # stage -1 - check if  device choice has been made
+        # stage 0  - check if device is available in fastboot 
+        # stage 1  - fastboot format and flash boot / recovery 
+        # stage 2  - ready to flash ubuntu
+        # stage 3  - no recovery image detected
+        # stage 9  - end
         GObject.idle_add(self.callback)
 
     def create_ubuntu_command(self, downloadcache):
+        dname = all_devices[device].name
+        length = len(dname)
         contents = 'format system\nload_keyring image-master.tar.xz image-master.tar.xz.asc\nload_keyring image-signing.tar.xz image-signing.tar.xz.asc\nmount system\n'
         for file in os.listdir(downloadcache):
             if file[0:7] == 'ubports' and file[-3:] == '.xz':
                 ubuntufile = file
             elif file[0:7] == 'ubports' and file[-3:] == 'asc':
                 ubuntuascfile = file
-            elif (file[0:7] == 'device-' or file[0:3] == 'FP2') and file[-3:] == '.xz':
+            elif (file[0:7] == 'device-' or file[0:length] == 'FP2') and file[-3:] == '.xz':
                 devicefile = file
-            elif (file[0:7] == 'device-' or file[0:3] == 'FP2') and file[-3:] == 'asc':
+            elif (file[0:7] == 'device-' or file[0:length] == 'FP2') and file[-3:] == 'asc':
                 deviceascfile = file
             elif file[0:7] == 'keyring' and file[-3:] == '.xz':
                 keyringfile = file
@@ -143,11 +155,12 @@ class WorkerThread(threading.Thread):
         # adb shell
         # adb push
         # adb reboot
-        global device
+        global device_name
         global channel
         global cachedir
         global currentdir
-        
+        dname = all_devices[device].name
+
         # make cross platform choice of tool
         if sys.platform == 'win32':
             adbcmd = 'bin\\adb.exe'
@@ -169,29 +182,19 @@ class WorkerThread(threading.Thread):
             try:
                 output = os.popen(adbcmd +' shell getprop ro.product.device').read().strip()
                 print_debug(output)
-                if output != 'FP2':
+                if output != dname:
                     result = False
-                    device = 'NONE'
+                    device_name = 'NONE'
                 else:
                     result = True
-                    device = 'FP2'
+                    device_name = dname
             except:
-                device = 'NONE'
-        # for now use ubuntu-device-flash
-        # TODO figure out what ubuntu-device-flash does exactly
-        # and implement it with adb to make it cross platform
-        if cmd == 'flash':
-            if device == 'FP2':
-                try:
-                    os.system('ubuntu-device-flash --server=http://system-image.ubports.com touch --channel=ubuntu-touch/%s --device=%s'% (channel, device))
-                    result = True
-                except:
-                    result = False
+                device_name = 'NONE'
         if cmd == 'adbflash':
-            if device == 'FP2':
+            if device_name == dname:
                 # figure out how json files on server select the downloads mentioned below
                 # get index.json
-                url = 'http://system-image.ubports.com/ubports-touch/15.04/%s/%s/index.json' % (channel, device)
+                url = 'http://system-image.ubports.com/ubports-touch/15.04/%s/%s/index.json' % (channel, device_name)
                 indexfile = cachedir + '/index.json'
                 req = urllib.request.urlretrieve(url, indexfile)
                 data = json.load(open(indexfile))
@@ -267,16 +270,18 @@ class WorkerThread(threading.Thread):
         # imgdownload
 
         if cmd == 'imgdownload':
+            imgsurl = all_devices[device].recovery
+            friendlyname = all_devices[device].friendly
             if not os.path.isdir(cachedir):
                 os.makedirs(cachedir)
 
             # do the image download stuff and tar stuff
-            win.progress.set_text('Downloading Fairphone 2 images')
-            req = urllib.request.urlretrieve(imgsurl, cachedir + '/device_FP2_devel.tar.xz')
+            win.progress.set_text('Downloading %s images' % friendlyname)
+            req = urllib.request.urlretrieve(imgsurl, cachedir + '/device.tar.xz')
             win.progress.set_fraction(0.15)
-            win.progress.set_text('Unpacking Fairphone 2 images')
+            win.progress.set_text('Unpacking %s images' % friendlyname)
             # untar the stuff and rename to bootfp2.img and recoveryfp2.img
-            f = tarfile.open(cachedir + "/device_FP2_devel.tar.xz", "r:xz")
+            f = tarfile.open(cachedir + "/device.tar.xz", "r:xz")
             f.extract('partitions/boot.img', cachedir)
             f.extract('partitions/recovery.img', cachedir)
             # set progress
@@ -284,7 +289,8 @@ class WorkerThread(threading.Thread):
             result = True
 
         elif cmd == 'flashboot':
-            win.progress.set_text('Downloading Fairphone 2 Images')
+            friendlyname = all_devices[device].friendly
+            win.progress.set_text('Flashing %s Images' % friendlyname )
             try:
                 win.progress.set_text('Flashing boot image')
                 discard=os.popen(fbcmd + ' flash boot ' + cachedir + '/partitions/boot.img').read().strip()
@@ -342,7 +348,7 @@ class WorkerThread(threading.Thread):
 
         #Object.idle_add(self.callback)
 
-class MyWindow(Gtk.Window):
+class CPTMainWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title="CPT", border_width=8, resizable=False)
@@ -376,6 +382,23 @@ class MyWindow(Gtk.Window):
         vbox.pack_start(self.device_label, True, True, 0)
         vbox.pack_start(self.flash_label, True, True, 0)
         vbox.pack_start(self.ubuntu_label, True, True, 0)
+    
+        device_choice = Gtk.Label('Choose your device', xalign=0)
+        
+        count = 0
+        device_store = Gtk.ListStore(int, str)
+        while count < len(all_devices):
+            print_debug('Adding device ' + str(count) + ' named ' + all_devices[count].friendly + ' to store')
+            device_store.append([count, all_devices[count].friendly])
+            count = count + 1
+
+        self.device_choice_combox = Gtk.ComboBox.new_with_model(device_store)
+        self.device_choice_combox.connect("changed", self.on_combox_change)
+        #device_choice_combox.set_entry_text_column(1)
+        render_text = Gtk.CellRendererText()
+        self.device_choice_combox.pack_start(render_text, True)
+        self.device_choice_combox.add_attribute(render_text, "text", 1)
+
 
         channel_label = Gtk.Label('Choose your channel', xalign=0)
 
@@ -397,7 +420,9 @@ class MyWindow(Gtk.Window):
         self.progress = Gtk.ProgressBar()
         self.progress.set_text('')
         self.progress.set_show_text(True)
-
+        
+        hbox_left.pack_start(device_choice, False, False, 0)
+        hbox_left.pack_start(self.device_choice_combox, False, False, 0)
         hbox_left.pack_start(channel_label, False, False, 0)
         hbox_left.pack_start(self.channel_button1, False, False, 0)
         hbox_left.pack_start(self.channel_button2, False, False, 0)
@@ -431,6 +456,7 @@ class MyWindow(Gtk.Window):
         if stage == 1:
             #self.status_label.set_markup('<span foreground="blue">Flashing recovery image</span>')
             self.progress.set_text('Flashing recovery image')
+            self.device_choice_combox.set_sensitive(False)
         elif stage == 2 or stage == 3:
             self.channel_button1.set_sensitive(False)
             self.channel_button2.set_sensitive(False)
@@ -457,14 +483,25 @@ class MyWindow(Gtk.Window):
                 
         return True   
 
-
+    def on_combox_change(self, combo):
+        global device
+        t = combo.get_active_iter()
+        if t != None:
+            model = combo.get_model()
+            print_debug('combobox item %s named %s is active' % (model[t][0], model[t][1]))
+            device = int(model[t][0])
+            
     def work_finished_cb(self):
         #12345678901234567890123456789012345678901234567
         global stage
+        if stage == -1:
+            self.progress.set_text('Choose the device you have')
+            
         if stage == 0:
             #self.status_label.set_markup('<span foreground="red">Please make sure a device is connected and set to fastboot mode</span>')
             self.progress.set_text('Please make sure a device is connected and set to fastboot mode')
             self.device_label.set_markup('<span foreground="red">Device: NOT FOUND</span>')
+            self.device_choice_combox.set_sensitive(False)
         elif stage == 1:
             #self.status_label.set_markup('<span foreground="green">Device detected and booted to fastboot mode</span>')
             self.progress.set_text('Device detected and booted to fastboot mode')
@@ -474,6 +511,7 @@ class MyWindow(Gtk.Window):
                                     'Please make sure you made a backup of your data.\n'
                                     'All data will be deleted from your device')
             self.action_button1.set_label('Flash Device')
+            self.device_choice_combox.set_sensitive(False)
         elif stage == 2:
             self.flash_label.set_markup('<span foreground="green">Recovery image flash: DONE</span>')
             self.progress.set_text('Recovery image successfully flashed')
@@ -508,7 +546,7 @@ class MyWindow(Gtk.Window):
     
 
 if __name__ == '__main__':
-    win = MyWindow()
+    win = CPTMainWindow()
     win.connect("delete-event", Gtk.main_quit)
     win.show_all()
     Gtk.main()
