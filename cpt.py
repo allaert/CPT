@@ -351,7 +351,7 @@ class WorkerThread(threading.Thread):
 class CPTMainWindow(Gtk.Window):
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="CPT", border_width=8, resizable=False)
+        Gtk.Window.__init__(self, title="Ubuntu Touch Installer - CPT", border_width=8, resizable=False)
         #self.set_default_size(850, 500)
         obox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
 
@@ -400,33 +400,41 @@ class CPTMainWindow(Gtk.Window):
         self.device_choice_combox.add_attribute(render_text, "text", 1)
 
 
-        channel_label = Gtk.Label('Choose your channel', xalign=0)
+        #channel_label = Gtk.Label('Choose your channel', xalign=0)
 
-        self.channel_button1 = Gtk.RadioButton.new_with_label_from_widget(None, "Stable (stable)")
-        self.channel_button1.connect("toggled", self.on_button_toggled, "stable")
-        self.channel_button2 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Release Candidate (rc)")
-        self.channel_button2.connect("toggled", self.on_button_toggled, "rc")
-        self.channel_button3 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Nightly Build (devel)")
-        self.channel_button3.connect("toggled", self.on_button_toggled, "devel")
+        #self.channel_button1 = Gtk.RadioButton.new_with_label_from_widget(None, "Stable (stable)")
+        #self.channel_button1.connect("toggled", self.on_button_toggled, "stable")
+        #self.channel_button2 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Release Candidate (rc)")
+        #self.channel_button2.connect("toggled", self.on_button_toggled, "rc")
+        #self.channel_button3 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Nightly Build (devel)")
+        #self.channel_button3.connect("toggled", self.on_button_toggled, "devel")
         #self.channel_button4 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Experimental (devel-proposed)")
         #self.channel_button4.connect("toggled", self.on_button_toggled, "devel-proposed")
         #self.channel_button5 = Gtk.RadioButton.new_with_label_from_widget(self.channel_button1, "Nightly (devel_rc-proposed)")
         #self.channel_button5.connect("toggled", self.on_button_toggled, "devel_rc-proposed")
 
-        self.exp_label = Gtk.Label('\nConnect your device and boot into fastboot mode.\n'
-                               'Hold volume down and push the power button.\n\n'
-                                   'Let go when you feel the buzz.\n', xalign=0)
+        self.exp_label = Gtk.Label('',xalign=0)
+        
+        self.exp_label.set_markup('<span weight="bold">For Fairphone:</span> Connect your device and boot into\n'
+                                   '<span style="italic">fastboot</span> mode. Hold volume down and push the power\n'
+                                   'button. Release when the phone vibrates.\n\n'
+                                   '<span weight="bold">For Nexus 5:</span> Connect your device and boot into\n'
+                                   '<span style="italic">fastboot</span> mode. Hold volume up, down and push the\n'
+                                   'power button. Release when <span style="italic">fastboot</span> menu is shown.\n\n'
+                                   '<span weight="bold">For OnePlus One:</span> Connect your device and boot into\n'
+                                   '<span style="italic">fastboot</span> mode. Hold volume up and push the power\n'
+                                   'button. Release when the text <span style="italic">fastboot</span> is shown.')
         #self.status_label = Gtk.Label('', xalign=0)
         self.progress = Gtk.ProgressBar()
         self.progress.set_text('')
         self.progress.set_show_text(True)
-        
+       
         hbox_left.pack_start(device_choice, False, False, 0)
         hbox_left.pack_start(self.device_choice_combox, False, False, 0)
-        hbox_left.pack_start(channel_label, False, False, 0)
-        hbox_left.pack_start(self.channel_button1, False, False, 0)
-        hbox_left.pack_start(self.channel_button2, False, False, 0)
-        hbox_left.pack_start(self.channel_button3, False, False, 0)
+        #hbox_left.pack_start(channel_label, False, False, 0)
+        #hbox_left.pack_start(self.channel_button1, False, False, 0)
+        #hbox_left.pack_start(self.channel_button2, False, False, 0)
+        #hbox_left.pack_start(self.channel_button3, False, False, 0)
         #hbox_left.pack_start(self.channel_button4, False, False, 0)
         #hbox_left.pack_start(self.channel_button5, False, False, 0)
         hbox_left.pack_start(self.exp_label, False, False, 0)
@@ -439,11 +447,11 @@ class CPTMainWindow(Gtk.Window):
 
         logo = Gtk.Image()
         if sys.platform != 'darwin':
-            logo.set_from_file('gfx/UBports-Logo-Trans.png')
+            logo.set_from_file('gfx/ubrobot.png')
 
 
-        hbox_right.pack_start(self.spinner, False, False, 0)
         hbox_right.pack_start(logo, False, False, 0)
+        hbox_right.pack_start(self.spinner, False, False, 0)
         hbox_right.pack_start(self.action_button1, False, False, 0)
 
         obox.pack_start(self.progress, False, False, 0)
@@ -458,9 +466,9 @@ class CPTMainWindow(Gtk.Window):
             self.progress.set_text('Flashing recovery image')
             self.device_choice_combox.set_sensitive(False)
         elif stage == 2 or stage == 3:
-            self.channel_button1.set_sensitive(False)
-            self.channel_button2.set_sensitive(False)
-            self.channel_button3.set_sensitive(False)
+            #self.channel_button1.set_sensitive(False)
+            #self.channel_button2.set_sensitive(False)
+            #self.channel_button3.set_sensitive(False)
             #self.channel_button4.set_sensitive(False)
             #self.channel_button5.set_sensitive(False)
             self.action_button1.set_sensitive(False)
@@ -506,30 +514,37 @@ class CPTMainWindow(Gtk.Window):
             #self.status_label.set_markup('<span foreground="green">Device detected and booted to fastboot mode</span>')
             self.progress.set_text('Device detected and booted to fastboot mode')
             self.device_label.set_markup('<span foreground="green">Device: FOUND</span>')
-            self.exp_label.set_text('\nDevice detected.\n'
-                                    'WARNING!!\nThis is your last chance to back out.\n'
-                                    'Please make sure you made a backup of your data.\n'
-                                    'All data will be deleted from your device')
+            self.exp_label.set_markup('\nDevice detected.\n'
+                                      '<span weight="bold">WARNING!</span>\n'
+                                      'All data will be deleted from your device.\n'
+                                      'Please make sure you have a backup of your data.\n'
+                                      'Continue at your own risk!')
+
             self.action_button1.set_label('Flash Device')
             self.device_choice_combox.set_sensitive(False)
         elif stage == 2:
             self.flash_label.set_markup('<span foreground="green">Recovery image flash: DONE</span>')
             self.progress.set_text('Recovery image successfully flashed')
 
-            self.exp_label.set_text('\nPlease boot your Fairphone 2 into recovery mode\n'
-                                    'by holding Volume Up and pressing Power\n'
-                                    'Release when you feel the buzz\n'
-                                    'Wait until you see the UBports Recovery Screen\n'
-                                    'this can take up to 30 seconds')
+            self.exp_label.set_markup('<span weight="bold">For Fairphone:</span> Boot into <span style="italic">recovery</span> mode. Hold\n'
+                                      'volume up and push the power button. Release when\n'
+                                      'the phone vibrates. And wait... Be patient...\n\n'
+                                      '<span weight="bold">For Nexus 5:</span> Boot into <span style="italic">recovery</span> mode. Hold\n'
+                                      'volume up, down and push the power button. Release\n'
+                                      'when <span style="italic">fastboot</span> menu is shown. Select <span style="italic">recovery</span> mode\n'
+                                      'with volume buttons and confirm with power button.\n\n'
+                                      '<span weight="bold">For OnePlus One:</span> Boot into <span style="italic">recovery</span> mode. Hold\n'
+                                      'volume down and push the power button. Release when\n'
+                                      'the recovery options are shown.')
             self.action_button1.set_label('Install Ubuntu')
             self.progress.set_fraction(0.3)
         elif stage == 3:
             #self.status_label.set_markup('<span foreground="red">Could not detect device in recovery mode.</span>')
             self.progress.set_text('Could not detect device in recovery mode.')
             self.ubuntu_label.set_markup('<span foreground="blue">Device in recovery mode: NOT FOUND</span>')
-            self.channel_button1.set_sensitive(True)
-            self.channel_button2.set_sensitive(True)
-            self.channel_button3.set_sensitive(True)
+            #self.channel_button1.set_sensitive(True)
+            #self.channel_button2.set_sensitive(True)
+            #self.channel_button3.set_sensitive(True)
             #self.channel_button4.set_sensitive(True)
             #self.channel_button5.set_sensitive(True)
             self.action_button1.set_sensitive(True)
