@@ -5,7 +5,7 @@ block_cipher = None
 missing_binaries = []
 missing_data = []
 
-missing_data.append(('./gfx/UBports-Logo-Trans.png', './gfx'))
+missing_data.append(('./gfx/ubrobot.png', './gfx'))
 missing_binaries.append(('./osx/bin/adb', './bin'))
 missing_binaries.append(('./osx/bin/fastboot', './bin'))
 

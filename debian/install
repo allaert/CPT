@@ -1,4 +1,5 @@
 cpt.py opt/cpt/
+cpt_devices.py opt/cpt/
 cpt.sh opt/cpt/
 gfx/ opt/cpt/
 cpt.png opt/cpt/

@@ -119,9 +119,9 @@ class WorkerThread(threading.Thread):
                 ubuntufile = file
             elif file[0:7] == 'ubports' and file[-3:] == 'asc':
                 ubuntuascfile = file
-            elif (file[0:7] == 'device-' or file[0:length] == 'FP2') and file[-3:] == '.xz':
+            elif (file[0:7] == 'device-' or file[0:length] == dname) and file[-3:] == '.xz':
                 devicefile = file
-            elif (file[0:7] == 'device-' or file[0:length] == 'FP2') and file[-3:] == 'asc':
+            elif (file[0:7] == 'device-' or file[0:length] == dname) and file[-3:] == 'asc':
                 deviceascfile = file
             elif file[0:7] == 'keyring' and file[-3:] == '.xz':
                 keyringfile = file

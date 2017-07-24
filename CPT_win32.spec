@@ -11,7 +11,7 @@ missing_files = []
 for tl in ["Atk-1.0.typelib", "cairo-1.0.typelib", "Gdk-3.0.typelib", "GdkPixbuf-2.0.typelib", "Gio-2.0.typelib", "GIRepository-2.0.typelib", "GLib-2.0.typelib", "GModule-2.0.typelib", "GObject-2.0.typelib", "Gtk-3.0.typelib", "Pango-1.0.typelib"]:
     missing_files.append((os.path.join(typelib_path, tl), "./gi_typelibs"))
 
-missing_files.append(('./gfx/UBports-Logo-Trans.png', './gfx'))
+missing_files.append(('./gfx/ubrobot.png', './gfx'))
 missing_files.append(('./win32/bin/adb.exe', './bin'))
 missing_files.append(('./win32/bin/AdbWinApi.dll', './bin'))
 missing_files.append(('./win32/bin/AdbWinUsbApi.dll', './bin'))
